@@ -1,0 +1,19 @@
+{
+  "name": "planetscale-proxy",
+  "version": "0.0.3",
+  "description": "PlanetScale Database Proxy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/planetscale/npm-planetscale-proxy.git"
+  },
+  "author": "Nick Van Wiggeren",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/planetscale/npm-planetscale-proxy/issues"
+  },
+  "homepage": "https://github.com/planetscale/npm-planetscale-proxy#readme"
+}
