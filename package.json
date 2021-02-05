@@ -1,7 +1,7 @@
 {
-  "name": "planetscale-proxy",
+  "name": "psdb-node",
   "version": "0.0.5",
-  "description": "PlanetScale Database Proxy",
+  "description": "PlanetScale Database Client",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/planetscale/npm-planetscale-proxy.git"
+    "url": "git+ssh://git@github.com/planetscale/psdb-node.git"
   },
   "author": "Nick Van Wiggeren",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/planetscale/npm-planetscale-proxy/issues"
+    "url": "https://github.com/planetscale/psdb-node/issues"
   },
-  "homepage": "https://github.com/planetscale/npm-planetscale-proxy#readme",
+  "homepage": "https://github.com/planetscale/psdb-node#readme",
   "dependencies": {
     "forge": "^2.3.0",
     "got": "^11.8.1",
