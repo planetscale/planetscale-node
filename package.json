@@ -1,8 +1,9 @@
 {
   "name": "planetscale-proxy",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "PlanetScale Database Proxy",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/planetscale/npm-planetscale-proxy/issues"
   },
-  "homepage": "https://github.com/planetscale/npm-planetscale-proxy#readme"
+  "homepage": "https://github.com/planetscale/npm-planetscale-proxy#readme",
+  "dependencies": {
+    "forge": "^2.3.0",
+    "got": "^11.8.1",
+    "mysql2": "^2.2.5",
+    "node-forge": "^0.10.0"
+  }
 }
