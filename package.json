@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/planetscale/psdb-node#readme",
   "dependencies": {
-    "forge": "^2.3.0",
     "got": "^11.8.1",
     "mysql2": "^2.2.5",
     "node-forge": "^0.10.0"
