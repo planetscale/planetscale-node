@@ -1,7 +1,7 @@
-import got from 'got';
-import tls from 'tls';
-import forge from 'node-forge'
-import mysql from 'mysql2'
+const got = require('got')
+const tls = require('tls')
+const forge = require('node-forge')
+const mysql = require('mysql2')
 
 class PSDB {
   constructor(branch = 'development') {
@@ -68,4 +68,4 @@ class PSDB {
   }
 }
 
-export default PSDB;
+module.exports = PSDB;
