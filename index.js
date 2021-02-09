@@ -14,8 +14,15 @@ class PSDB {
     this._baseURL = 'https://api.planetscaledb.io'
     this._headers = {'Authorization': `${this._tokenname}:${this._token}`}
   }
+
+  async query(data, params) {
+    if (this._connection == null) {
+      await this.createConnection()
+    }
+    return this._connection.promise().query(data, params)
+  }
+
   async createConnection() {
-    //todo(nickvanw): at some point we should cache this
     var keys = forge.pki.rsa.generateKeyPair(2048)
     var csr = this.getCSR(keys)
     var data = {'csr': csr}
@@ -36,12 +43,14 @@ class PSDB {
       rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
     }
 
-    return mysql.createConnection({
+    this._connection = mysql.createConnection({
       user: 'root',
       database: this._db,
       password: await this.getPassword(),
       stream: tls.connect(hostPort[1], hostPort[0], sslOpts)
     })
+
+    return this._connection
   }
 
   async getPassword() {
