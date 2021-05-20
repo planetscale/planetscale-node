@@ -1,18 +1,18 @@
+const got = require('got')
+const tls = require('tls')
+const forge = require('node-forge')
 const mysql = require('mysql2')
-const tls = require('tls');
 
 class PSDB {
-  constructor(branch = 'main') {
+  constructor(branch = 'development') {
     this.branch = branch;
-    this._cert = process.env.PSDB_CERT
-    this._ca = process.env.PSDB_CA
-    this._key = process.env.PSDB_PRIVATE_KEY
-    var dbOrg = process.env.PSDB_DB.split('/')
+    this._tokenname = process.env.PSDB_TOKEN_NAME;
+    this._token = process.env.PSDB_TOKEN;
+    var dbOrg = process.env.PSDB_DB_NAME.split('/')
     this._org = dbOrg[0]
     this._db = dbOrg[1]
-
-    this._host = `${this.branch}.${this._db}.${this._org}.us-east-1.psdb.cloud`
-    this._port = 3307
+    this._baseURL = 'https://api.planetscaledb.io'
+    this._headers = {'Authorization': `${this._tokenname}:${this._token}`}
   }
 
   async query(data, params) {
@@ -23,23 +23,57 @@ class PSDB {
   }
 
   async createConnection() {
+    var keys = forge.pki.rsa.generateKeyPair(2048)
+    var csr = this.getCSR(keys)
+    var data = {'csr': csr}
+    var fullURL = `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
+    const {body} = await got.post(fullURL, {
+      json: data,
+      responseType: 'json',
+      headers: this._headers
+    });
+
+    const hostPort = body.remote_addr.split(':')
+
+    var sslOpts = {
+      servername: `${this._org}/${this._db}/${this.branch}`,
+      cert: body.certificate,
+      ca: body.certificate_chain,
+      key: forge.pki.privateKeyToPem(keys.privateKey),
+      rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
+    }
+
     this._connection = mysql.createConnection({
       user: 'root',
       database: this._db,
-      stream: tls.connect(this._port, this._host, this.sslOpts())
+      password: await this.getPassword(),
+      stream: tls.connect(hostPort[1], hostPort[0], sslOpts)
     })
 
     return this._connection
   }
 
-  sslOpts() {
-    return {
-      servername: this._host,
-      cert: this._cert,
-      ca: this._ca,
-      key: this._key,
-      rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
-    }
+  async getPassword() {
+    var pwURL = `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/status`
+    const {body} = await got.get(pwURL, {
+      responseType: 'json',
+      headers: this._headers
+    })
+
+    return body.mysql_gateway_pass
+  }
+
+  getCSR(keys) {
+    var csr = forge.pki.createCertificationRequest();
+    csr.publicKey = keys.publicKey
+    csr.setSubject([{
+      name: 'commonName',
+      value: `${this._org}/${this._db}/${this.branch}`
+    }])
+    csr.version = 1
+    csr.siginfo.algorithmOid = 'sha256'
+    csr.sign(keys.privateKey)
+    return forge.pki.certificationRequestToPem(csr)
   }
 }
 
