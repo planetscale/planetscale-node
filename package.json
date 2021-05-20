@@ -1,6 +1,6 @@
 {
   "name": "psdb-node",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "description": "PlanetScale Database Client",
   "main": "index.js",
   "scripts": {
