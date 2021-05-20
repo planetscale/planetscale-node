@@ -32,5 +32,3 @@ Then, you can use it:
 conn = new db('main');
 let [rows, fields] = await conn.query('SELECT * FROM reminders')
 ```
-
-

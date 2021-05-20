@@ -1,5 +1,5 @@
 {
-  "name": "psdb-node",
+  "name": "planetscale-node",
   "version": "0.0.1",
   "description": "PlanetScale Database Client",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/planetscale/psdb-node.git"
+    "url": "git+ssh://git@github.com/planetscale/planetscale-node.git"
   },
   "author": "Nick Van Wiggeren",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/planetscale/psdb-node/issues"
+    "url": "https://github.com/planetscale/planetscale-node/issues"
   },
-  "homepage": "https://github.com/planetscale/psdb-node#readme",
+  "homepage": "https://github.com/planetscale/planetscale-node#readme",
   "dependencies": {
     "got": "^11.8.1",
     "mysql2": "^2.2.5",
