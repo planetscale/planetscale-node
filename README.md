@@ -29,6 +29,7 @@ export PSDB_DB_NAME='[YOUR ORG]/[YOUR DB NAME]'
 Then, you can use it:
 
 ```javascript
+const db = require('psdb-node');
 conn = new db('main');
 let [rows, fields] = await conn.query('SELECT * FROM reminders')
 ```
