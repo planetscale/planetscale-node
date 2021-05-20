@@ -4,14 +4,14 @@ const forge = require('node-forge')
 const mysql = require('mysql2')
 
 class PSDB {
-  constructor(branch = 'development') {
+  constructor(branch = 'main') {
     this.branch = branch;
     this._tokenname = process.env.PSDB_TOKEN_NAME;
     this._token = process.env.PSDB_TOKEN;
     var dbOrg = process.env.PSDB_DB_NAME.split('/')
     this._org = dbOrg[0]
     this._db = dbOrg[1]
-    this._baseURL = 'https://api.planetscaledb.io'
+    this._baseURL = 'https://api.planetscale.com'
     this._headers = {'Authorization': `${this._tokenname}:${this._token}`}
   }
 
@@ -33,10 +33,11 @@ class PSDB {
       headers: this._headers
     });
 
-    const hostPort = body.remote_addr.split(':')
+
+    const addr = `${this.branch}.${this._db}.${this._org}.${body.remote_addr}`
 
     var sslOpts = {
-      servername: `${this._org}/${this._db}/${this.branch}`,
+      servername: addr,
       cert: body.certificate,
       ca: body.certificate_chain,
       key: forge.pki.privateKeyToPem(keys.privateKey),
@@ -46,21 +47,10 @@ class PSDB {
     this._connection = mysql.createConnection({
       user: 'root',
       database: this._db,
-      password: await this.getPassword(),
-      stream: tls.connect(hostPort[1], hostPort[0], sslOpts)
+      stream: tls.connect(body.ports['proxy'], addr, sslOpts),
     })
 
     return this._connection
-  }
-
-  async getPassword() {
-    var pwURL = `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/status`
-    const {body} = await got.get(pwURL, {
-      responseType: 'json',
-      headers: this._headers
-    })
-
-    return body.mysql_gateway_pass
   }
 
   getCSR(keys) {
