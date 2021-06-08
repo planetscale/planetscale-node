@@ -8,7 +8,7 @@ class PSDB {
     this.branch = branch
     this._tokenname = process.env.PSDB_TOKEN_NAME
     this._token = process.env.PSDB_TOKEN
-    var dbOrg = process.env.PSDB_DB_NAME.split('/')
+    const dbOrg = process.env.PSDB_DB_NAME.split('/')
     this._org = dbOrg[0]
     this._db = dbOrg[1]
     this._baseURL = 'https://api.planetscale.com'
@@ -23,20 +23,20 @@ class PSDB {
   }
 
   async createConnection() {
-    var keys = forge.pki.rsa.generateKeyPair(2048)
-    var csr = this.getCSR(keys)
-    var fullURL = new URL(
+    const keys = forge.pki.rsa.generateKeyPair(2048)
+    const csr = this.getCSR(keys)
+    const fullURL = new URL(
       `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
     )
     const { response, body } = await postJSON(fullURL, this._headers, { csr })
 
     if (response.statusCode < 200 || response.statusCode > 299) {
-      throw new Error(`HTTP ${statusCode}`)
+      throw new Error(`HTTP ${response.statusCode}`)
     }
 
     const addr = `${this.branch}.${this._db}.${this._org}.${body.remote_addr}`
 
-    var sslOpts = {
+    const sslOpts = {
       servername: addr,
       cert: body.certificate,
       ca: body.certificate_chain,
@@ -54,7 +54,7 @@ class PSDB {
   }
 
   getCSR(keys) {
-    var csr = forge.pki.createCertificationRequest()
+    const csr = forge.pki.createCertificationRequest()
     csr.publicKey = keys.publicKey
     csr.setSubject([
       {

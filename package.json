@@ -40,7 +40,10 @@
     "extends": [
       "eslint:recommended",
       "plugin:prettier/recommended"
-    ]
+    ],
+    "rules": {
+      "prefer-const": "error"
+    }
   },
   "prettier": {
     "semi": false,
