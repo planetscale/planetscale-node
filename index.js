@@ -1,4 +1,4 @@
-const got = require('got')
+const https = require('https')
 const tls = require('tls')
 const forge = require('node-forge')
 const mysql = require('mysql2')
@@ -8,7 +8,7 @@ class PSDB {
     this.branch = branch
     this._tokenname = process.env.PSDB_TOKEN_NAME
     this._token = process.env.PSDB_TOKEN
-    var dbOrg = process.env.PSDB_DB_NAME.split('/')
+    const dbOrg = process.env.PSDB_DB_NAME.split('/')
     this._org = dbOrg[0]
     this._db = dbOrg[1]
     this._baseURL = 'https://api.planetscale.com'
@@ -23,19 +23,20 @@ class PSDB {
   }
 
   async createConnection() {
-    var keys = forge.pki.rsa.generateKeyPair(2048)
-    var csr = this.getCSR(keys)
-    var data = { csr: csr }
-    var fullURL = `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
-    const { body } = await got.post(fullURL, {
-      json: data,
-      responseType: 'json',
-      headers: this._headers
-    })
+    const keys = forge.pki.rsa.generateKeyPair(2048)
+    const csr = this.getCSR(keys)
+    const fullURL = new URL(
+      `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
+    )
+    const { response, body } = await postJSON(fullURL, this._headers, { csr })
+
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      throw new Error(`HTTP ${response.statusCode}`)
+    }
 
     const addr = `${this.branch}.${this._db}.${this._org}.${body.remote_addr}`
 
-    var sslOpts = {
+    const sslOpts = {
       servername: addr,
       cert: body.certificate,
       ca: body.certificate_chain,
@@ -53,7 +54,7 @@ class PSDB {
   }
 
   getCSR(keys) {
-    var csr = forge.pki.createCertificationRequest()
+    const csr = forge.pki.createCertificationRequest()
     csr.publicKey = keys.publicKey
     csr.setSubject([
       {
@@ -66,6 +67,34 @@ class PSDB {
     csr.sign(keys.privateKey)
     return forge.pki.certificationRequestToPem(csr)
   }
+}
+
+function postJSON(url, headers, body) {
+  const json = JSON.stringify(body)
+  const options = {
+    hostname: url.host,
+    port: 443,
+    path: url.pathname,
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Content-Length': json.length,
+      ...headers
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (response) => {
+      let body = ''
+      response.on('data', (chunk) => (body += chunk))
+      response.on('end', () => resolve({ response, body: JSON.parse(body) }))
+    })
+
+    req.on('error', (e) => reject(e))
+    req.write(json)
+    req.end()
+  })
 }
 
 module.exports = PSDB

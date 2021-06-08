@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/planetscale/planetscale-node#readme",
   "dependencies": {
-    "got": "^11.8.1",
     "mysql2": "^2.2.5",
     "node-forge": "^0.10.0"
   },
@@ -41,7 +40,10 @@
     "extends": [
       "eslint:recommended",
       "plugin:prettier/recommended"
-    ]
+    ],
+    "rules": {
+      "prefer-const": "error"
+    }
   },
   "prettier": {
     "semi": false,
