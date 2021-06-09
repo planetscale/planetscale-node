@@ -4,7 +4,9 @@ This is a very basic (v0.0.1) JavaScript client for connecting to PlanetScale.
 
 ## Installation
 
-`$ npm install planetscale-node`
+```
+$ npm install planetscale-node
+```
 
 ## Setup
 
