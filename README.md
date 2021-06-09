@@ -29,16 +29,16 @@ This code uses the PlanetScale API to provision a TLS certificate, and then conn
 Set the following environment variables in your application.
 
 ```bash
-export PSDB_TOKEN='[REDACTED]'
-export PSDB_TOKEN_NAME='nyprhd2z6bd3'
-export PSDB_DB_NAME='[YOUR ORG]/[YOUR DB NAME]'
+export PLANETSCALE_TOKEN='[REDACTED]'
+export PLANETSCALE_TOKEN_NAME='nyprhd2z6bd3'
+export PLANETSCALE_DB_NAME='[YOUR ORG]/[YOUR DB NAME]'
 ```
 
 ```javascript
-const PSDB = require('planetscale-node');
+const PLANETSCALE = require('planetscale-node');
 
 async function main() {
-  const conn = new PSDB('main');
+  const conn = new PLANETSCALE('main');
   const [rows, fields] = await conn.query('select * from reminders');
   console.log(rows, fields);
 }
