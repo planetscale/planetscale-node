@@ -31,17 +31,18 @@ Set the following environment variables in your application.
 ```bash
 export PLANETSCALE_TOKEN='[REDACTED]'
 export PLANETSCALE_TOKEN_NAME='nyprhd2z6bd3'
-export PLANETSCALE_DB_NAME='[YOUR ORG]/[YOUR DB NAME]'
+export PLANETSCALE_ORG='[YOUR ORG]'
+export PLANETSCALE_DB='[YOUR DB NAME]'
 ```
 
 ```javascript
-const PLANETSCALE = require('planetscale-node');
+const PLANETSCALE = require('planetscale-node')
 
 async function main() {
-  const conn = new PLANETSCALE('main');
-  const [rows, fields] = await conn.query('select * from reminders');
-  console.log(rows, fields);
+  const conn = new PLANETSCALE('main')
+  const [rows, fields] = await conn.query('select * from reminders')
+  console.log(rows, fields)
 }
 
-main();
+main()
 ```

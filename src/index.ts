@@ -9,8 +9,8 @@ export class PLANETSCALE {
   private branch: string
   private _tokenname: string | undefined
   private _token: string | undefined
-  private _org: string
-  private _db: string
+  private _org: string | undefined
+  private _db: string | undefined
   private _baseURL: string
   private _headers: { Authorization: string }
   private _connection: Connection | null = null
@@ -19,9 +19,8 @@ export class PLANETSCALE {
     this.branch = branch
     this._tokenname = process.env.PLANETSCALE_TOKEN_NAME
     this._token = process.env.PLANETSCALE_TOKEN
-    const dbOrg = (process.env.PLANETSCALE_DB_NAME || '').split('/')
-    this._org = dbOrg[0]
-    this._db = dbOrg[1]
+    this._org = process.env.PLANETSCALE_ORG
+    this._db = process.env.PLANETSCALE_DB
     this._baseURL = 'https://api.planetscale.com'
     this._headers = { Authorization: `${this._tokenname}:${this._token}` }
   }
