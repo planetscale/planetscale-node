@@ -35,7 +35,7 @@ export PSDB_DB_NAME='[YOUR ORG]/[YOUR DB NAME]'
 ```
 
 ```javascript
-const PSDB = require('planetscale-node');
+const {PSDB} = require('planetscale-node');
 
 async function main() {
   const conn = new PSDB('main');
