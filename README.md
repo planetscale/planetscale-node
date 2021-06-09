@@ -36,10 +36,10 @@ export PLANETSCALE_DB='[YOUR DB NAME]'
 ```
 
 ```javascript
-const PDSB = require('planetscale-node')
+const {PDSB} = require('planetscale-node')
 
 async function main() {
-  const conn = new PLANETSCALE('main')
+  const conn = new PSDB('main')
   const [rows, fields] = await conn.query('select * from reminders')
   console.log(rows, fields)
 }
