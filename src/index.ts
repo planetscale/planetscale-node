@@ -5,7 +5,7 @@ import * as mysql from 'mysql2'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
 
-export class PLANETSCALE {
+export class PSDB {
   private branch: string
   private _tokenname: string | undefined
   private _token: string | undefined
