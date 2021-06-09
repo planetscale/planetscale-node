@@ -1,37 +1,50 @@
-const https = require('https')
-const tls = require('tls')
-const forge = require('node-forge')
-const mysql = require('mysql2')
+import * as https from 'https'
+import * as tls from 'tls'
+import * as forge from 'node-forge'
+import * as mysql from 'mysql2'
+import type { Connection } from 'mysql2'
+import type { IncomingMessage } from 'http'
 
-class PSDB {
+export class PSDB {
+  private branch: string
+  private _tokenname: string | undefined
+  private _token: string | undefined
+  private _org: string
+  private _db: string
+  private _baseURL: string
+  private _headers: { Authorization: string }
+  private _connection: Connection | null = null
+
   constructor(branch = 'main') {
     this.branch = branch
     this._tokenname = process.env.PSDB_TOKEN_NAME
     this._token = process.env.PSDB_TOKEN
-    const dbOrg = process.env.PSDB_DB_NAME.split('/')
+    const dbOrg = (process.env.PSDB_DB_NAME || '').split('/')
     this._org = dbOrg[0]
     this._db = dbOrg[1]
     this._baseURL = 'https://api.planetscale.com'
     this._headers = { Authorization: `${this._tokenname}:${this._token}` }
   }
 
-  async query(data, params) {
-    if (this._connection == null) {
-      await this.createConnection()
+  async query(data: any, params: any): Promise<any> {
+    if (!this._connection) {
+      this._connection = await this.createConnection()
     }
     return this._connection.promise().query(data, params)
   }
 
-  async createConnection() {
+  private async createConnection(): Promise<Connection> {
     const keys = forge.pki.rsa.generateKeyPair(2048)
     const csr = this.getCSR(keys)
     const fullURL = new URL(
       `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
     )
-    const { response, body } = await postJSON(fullURL, this._headers, { csr })
+    type CertData = { certificate: string; certificate_chain: string; ports: { proxy: number }; remote_addr: string }
+    const { response, body } = await postJSON<CertData>(fullURL, this._headers, { csr })
 
-    if (response.statusCode < 200 || response.statusCode > 299) {
-      throw new Error(`HTTP ${response.statusCode}`)
+    const status = response.statusCode || 0
+    if (status < 200 || status > 299) {
+      throw new Error(`HTTP ${status}`)
     }
 
     const addr = `${this.branch}.${this._db}.${this._org}.${body.remote_addr}`
@@ -44,16 +57,14 @@ class PSDB {
       rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
     }
 
-    this._connection = mysql.createConnection({
+    return mysql.createConnection({
       user: 'root',
       database: this._db,
       stream: tls.connect(body.ports['proxy'], addr, sslOpts)
     })
-
-    return this._connection
   }
 
-  getCSR(keys) {
+  private getCSR(keys: any): any {
     const csr = forge.pki.createCertificationRequest()
     csr.publicKey = keys.publicKey
     csr.setSubject([
@@ -69,7 +80,11 @@ class PSDB {
   }
 }
 
-function postJSON(url, headers, body) {
+function postJSON<T>(
+  url: URL,
+  headers: Record<string, string>,
+  body: any
+): Promise<{ response: IncomingMessage; body: T }> {
   const json = JSON.stringify(body)
   const options = {
     hostname: url.host,
@@ -96,5 +111,3 @@ function postJSON(url, headers, body) {
     req.end()
   })
 }
-
-module.exports = PSDB

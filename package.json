@@ -2,11 +2,18 @@
   "name": "planetscale-node",
   "version": "0.0.1",
   "description": "PlanetScale Database Client",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "lint": "eslint .",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean && npm run lint",
+    "build": "tsc",
+    "lint": "eslint src/**",
     "lint:fix": "npm run lint -- --fix",
-    "prepublishOnly": "npm run lint",
+    "prepublishOnly": "npm run build",
     "test": "npm run lint"
   },
   "repository": {
@@ -24,12 +31,18 @@
     "node-forge": "^0.10.0"
   },
   "devDependencies": {
+    "@types/node": "^15.12.2",
+    "@types/node-forge": "^0.10.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "prettier": "^2.3.0"
+    "prettier": "^2.3.0",
+    "typescript": "^4.3.2"
   },
   "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
       "ecmaVersion": 2018
     },
@@ -39,10 +52,13 @@
     },
     "extends": [
       "eslint:recommended",
-      "plugin:prettier/recommended"
+      "plugin:prettier/recommended",
+      "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
-      "prefer-const": "error"
+      "prefer-const": "error",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off"
     }
   },
   "prettier": {
