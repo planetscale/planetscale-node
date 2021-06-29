@@ -1,6 +1,6 @@
 # planetscale-node
 
-This is a very basic (v0.0.1) JavaScript client for connecting to PlanetScale.
+This is a very basic (v0.1.0) JavaScript client for connecting to PlanetScale.
 
 ## Installation
 
