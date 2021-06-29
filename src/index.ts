@@ -32,6 +32,13 @@ export class PSDB {
     return this._connection.promise().query(data, params)
   }
 
+  async execute(sql: string, values: any | any[] | { [param: string]: any }): Promise<any> {
+    if (!this._connection) {
+      this._connection = await this.createConnection()
+    }
+    return this._connection.promise().execute(sql, values)
+  }
+
   private async createConnection(): Promise<Connection> {
     const keys = forge.pki.rsa.generateKeyPair(2048)
     const csr = this.getCSR(keys)
