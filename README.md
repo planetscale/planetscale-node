@@ -36,7 +36,7 @@ export PLANETSCALE_DB='[YOUR DB NAME]'
 ```
 
 ```javascript
-const { PDSB } = require('planetscale-node')
+const { PSDB } = require('planetscale-node')
 
 async function main() {
   const conn = new PSDB('main')
@@ -50,7 +50,7 @@ main()
 ### Using prepared statements
 
 ```javascript
-const { PDSB } = require('planetscale-node')
+const { PSDB } = require('planetscale-node')
 
 async function main() {
   const conn = new PSDB('main')
