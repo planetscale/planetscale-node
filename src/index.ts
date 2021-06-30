@@ -2,7 +2,7 @@ import * as https from 'https'
 import * as tls from 'tls'
 import * as forge from 'node-forge'
 import * as mysql from 'mysql2'
-import type { Connection } from 'mysql2'
+import type { Connection, RowDataPacket, OkPacket, ResultSetHeader, FieldPacket, QueryOptions } from 'mysql2'
 import type { IncomingMessage } from 'http'
 
 export class PSDB {
@@ -25,18 +25,26 @@ export class PSDB {
     this._headers = { Authorization: `${this._tokenname}:${this._token}` }
   }
 
-  async query(data: any, params: any): Promise<any> {
+  public async query<T extends RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader>(
+    sql: string | QueryOptions,
+    values?: any | any[] | { [param: string]: any }
+  ): Promise<[T, FieldPacket[]]> {
     if (!this._connection) {
       this._connection = await this.createConnection()
     }
-    return this._connection.promise().query(data, params)
+    // we can cheat by using `as any` rather than spelling out each overload instance
+    return this._connection.promise().query<T>(sql as any, values)
   }
 
-  async execute(sql: string, values: any | any[] | { [param: string]: any }): Promise<any> {
+  public async execute<T extends RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader>(
+    sql: string | QueryOptions,
+    values?: any | any[] | { [param: string]: any }
+  ): Promise<[T, FieldPacket[]]> {
     if (!this._connection) {
       this._connection = await this.createConnection()
     }
-    return this._connection.promise().execute(sql, values)
+    // we can cheat by using `as any` rather than spelling out each overload instance
+    return this._connection.promise().execute<T>(sql as any, values)
   }
 
   private async createConnection(): Promise<Connection> {
