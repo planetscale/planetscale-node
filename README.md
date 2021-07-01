@@ -1,6 +1,6 @@
 # planetscale-node
 
-This is a pre-release JavaScript client for connecting to PlanetScale.
+This is the pre-release JavaScript client for connecting to PlanetScale.
 
 ## Installation
 
@@ -37,9 +37,9 @@ export PLANETSCALE_DB='[YOUR DB NAME]'
 
 ```javascript
 const { PSDB } = require('planetscale-node')
+const conn = new PSDB('main')
 
 async function main() {
-  const conn = new PSDB('main')
   const [rows, fields] = await conn.query('select * from reminders')
   console.log(rows, fields)
 }
@@ -51,9 +51,9 @@ main()
 
 ```javascript
 const { PSDB } = require('planetscale-node')
+const conn = new PSDB('main')
 
 async function main() {
-  const conn = new PSDB('main')
   const [rows, fields] = await conn.execute('select * from reminders where id > ?', [10])
   console.log(rows, fields)
 }
