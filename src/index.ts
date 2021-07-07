@@ -93,7 +93,7 @@ export class PSDB {
     })
   }
 
-  private async getCSR(keys: any): Promise<any> {
+  private async getCSR(keys: any): Promise<string> {
     const csr = await x509.Pkcs10CertificateRequestGenerator.create({
       name: `CN=${this._org}/${this._db}/${this.branch}`,
       keys,
