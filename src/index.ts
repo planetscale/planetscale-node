@@ -79,7 +79,7 @@ export class PSDB {
       servername: addr,
       cert: body.certificate,
       ca: body.certificate_chain,
-      key: privateKeyToPem(keys.privateKey),
+      key: this.privateKeyToPem(keys.privateKey),
       rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
     }
 
