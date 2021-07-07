@@ -1,9 +1,19 @@
 import * as https from 'https'
 import * as tls from 'tls'
-import * as forge from 'node-forge'
+import * as x509 from "@peculiar/x509";
 import * as mysql from 'mysql2'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
+
+const crypto = require('crypto')
+const { subtle } = crypto.webcrypto
+x509.cryptoProvider.set({subtle: subtle});
+
+const alg = {
+  name: "ECDSA",
+  namedCurve: "P-256",
+  hash: "SHA-256",
+}
 
 export class PSDB {
   private branch: string
@@ -39,8 +49,21 @@ export class PSDB {
     return this._connection.promise().execute(sql, values)
   }
 
+  private async privateKeyToPem(privateKey: any): Promise<String> {
+    const exported = await crypto.subtle.exportKey(
+      "pkcs8",
+      privateKey
+    );
+
+    const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported))
+    const exportedAsBase64 = Buffer.from(exportedAsString, 'binary').toString('base64')
+    const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
+
+    return pemExported
+  }
+
   private async createConnection(): Promise<Connection> {
-    const keys = forge.pki.rsa.generateKeyPair(2048)
+    const keys = await crypto.subtle.generateKey(alg, true, ["sign", "verify"]);
     const csr = this.getCSR(keys)
     const fullURL = new URL(
       `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
@@ -59,7 +82,7 @@ export class PSDB {
       servername: addr,
       cert: body.certificate,
       ca: body.certificate_chain,
-      key: forge.pki.privateKeyToPem(keys.privateKey),
+      key: privateKeyToPem(keys.privateKey),
       rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
     }
 
@@ -70,19 +93,17 @@ export class PSDB {
     })
   }
 
-  private getCSR(keys: any): any {
-    const csr = forge.pki.createCertificationRequest()
-    csr.publicKey = keys.publicKey
-    csr.setSubject([
-      {
-        name: 'commonName',
-        value: `${this._org}/${this._db}/${this.branch}`
-      }
-    ])
-    csr.version = 1
-    csr.siginfo.algorithmOid = 'sha256'
-    csr.sign(keys.privateKey)
-    return forge.pki.certificationRequestToPem(csr)
+  private async getCSR(keys: any): Promise<any> {
+    const csr = await x509.Pkcs10CertificateRequestGenerator.create({
+      name: `CN=${this._org}/${this._db}/${this.branch}`,
+      keys,
+      signingAlgorithm: alg,
+      extensions: [
+        new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.keyEncipherment),
+      ],
+    })
+
+    return csr.toString("pem")
   }
 }
 
