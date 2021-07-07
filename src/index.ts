@@ -1,18 +1,18 @@
 import * as https from 'https'
 import * as tls from 'tls'
-import * as x509 from "@peculiar/x509";
+import * as x509 from '@peculiar/x509'
 import * as mysql from 'mysql2'
+import * as crypto from 'crypto'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
 
-const crypto = require('crypto')
 const { subtle } = crypto.webcrypto
-x509.cryptoProvider.set({subtle: subtle});
+x509.cryptoProvider.set({ subtle: subtle })
 
 const alg = {
-  name: "ECDSA",
-  namedCurve: "P-256",
-  hash: "SHA-256",
+  name: 'ECDSA',
+  namedCurve: 'P-256',
+  hash: 'SHA-256'
 }
 
 export class PSDB {
@@ -49,21 +49,18 @@ export class PSDB {
     return this._connection.promise().execute(sql, values)
   }
 
-  private async privateKeyToPem(privateKey: any): Promise<String> {
-    const exported = await crypto.subtle.exportKey(
-      "pkcs8",
-      privateKey
-    );
+  private async privateKeyToPem(privateKey: any): Promise<string> {
+    const exported = await crypto.subtle.exportKey('pkcs8', privateKey)
 
     const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported))
     const exportedAsBase64 = Buffer.from(exportedAsString, 'binary').toString('base64')
-    const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
+    const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`
 
     return pemExported
   }
 
   private async createConnection(): Promise<Connection> {
-    const keys = await crypto.subtle.generateKey(alg, true, ["sign", "verify"]);
+    const keys = await crypto.subtle.generateKey(alg, true, ['sign', 'verify'])
     const csr = this.getCSR(keys)
     const fullURL = new URL(
       `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
@@ -99,11 +96,11 @@ export class PSDB {
       keys,
       signingAlgorithm: alg,
       extensions: [
-        new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.keyEncipherment),
-      ],
+        new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.keyEncipherment)
+      ]
     })
 
-    return csr.toString("pem")
+    return csr.toString('pem')
   }
 }
 
