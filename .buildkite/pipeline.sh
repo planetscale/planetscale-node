@@ -3,7 +3,7 @@
 set -eu
 
 echo "agents:"
-echo '  queue: "public"'
+echo "  queue: "public""
 
 echo "steps:"
 
