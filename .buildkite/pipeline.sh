@@ -2,6 +2,9 @@
 
 set -eu
 
+echo "agents:"
+echo '  queue: "public"'
+
 echo "steps:"
 
 for VERSION in 12 14 16; do
