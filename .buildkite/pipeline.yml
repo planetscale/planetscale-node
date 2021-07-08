@@ -1,0 +1,9 @@
+steps:
+- name: "node:12 build and test %n"
+  commands:
+    - "npm ci" 
+    - "npm run build --if-present"
+    - "npm test"
+  plugins:
+    - docker#v3.8.0:
+        image: "node:12-slim"
