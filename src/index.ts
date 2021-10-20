@@ -2,11 +2,12 @@ import * as https from 'https'
 import * as tls from 'tls'
 import * as forge from 'node-forge'
 import * as mysql from 'mysql2'
-import type { Connection } from 'mysql2'
+import type { Connection, ConnectionOptions } from 'mysql2'
 import type { IncomingMessage } from 'http'
 
 export class PSDB {
   private branch: string
+  private connectionOptions: ConnectionOptions
   private _tokenname: string | undefined
   private _token: string | undefined
   private _org: string | undefined
@@ -15,7 +16,7 @@ export class PSDB {
   private _headers: { Authorization: string }
   private _connection: Connection | null = null
 
-  constructor(branch = 'main') {
+  constructor(branch = 'main', connectionOptions = {}) {
     this.branch = branch
     this._tokenname = process.env.PLANETSCALE_TOKEN_NAME
     this._token = process.env.PLANETSCALE_TOKEN
@@ -23,6 +24,7 @@ export class PSDB {
     this._db = process.env.PLANETSCALE_DB
     this._baseURL = 'https://api.planetscale.com'
     this._headers = { Authorization: `${this._tokenname}:${this._token}` }
+    this.connectionOptions = connectionOptions
   }
 
   async query(data: any, params: any): Promise<any> {
@@ -64,6 +66,7 @@ export class PSDB {
     }
 
     return mysql.createConnection({
+      ...this.connectionOptions,
       user: 'root',
       database: this._db,
       stream: tls.connect(body.ports['proxy'], addr, sslOpts)
