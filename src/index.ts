@@ -1,9 +1,18 @@
 import * as https from 'https'
 import * as tls from 'tls'
-import * as forge from 'node-forge'
 import * as mysql from 'mysql2'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
+import { customAlphabet } from 'nanoid'
+import { Crypto } from '@peculiar/webcrypto'
+import * as x509 from '@peculiar/x509'
+
+const crypto = new Crypto()
+x509.cryptoProvider.set(crypto)
+
+const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
+const nodeBtoa = (str: string): string => Buffer.from(str, 'binary').toString('base64')
+const base64encode = typeof btoa !== 'undefined' ? btoa : nodeBtoa
 
 export class PSDB {
   private branch: string
@@ -40,49 +49,58 @@ export class PSDB {
   }
 
   private async createConnection(): Promise<Connection> {
-    const keys = forge.pki.rsa.generateKeyPair(2048)
-    const csr = this.getCSR(keys)
+    const alg = {
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+      hash: 'SHA-256'
+    }
+
+    const keyPair = await crypto.subtle.generateKey(alg, true, ['sign', 'verify'])
+
+    if (!keyPair.privateKey) {
+      throw new Error(`Failed to generate keypair`)
+    }
+
+    const csr = await x509.Pkcs10CertificateRequestGenerator.create({
+      keys: keyPair,
+      signingAlgorithm: alg
+    })
+
     const fullURL = new URL(
-      `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/create-certificate`
+      `${this._baseURL}/v1/organizations/${this._org}/databases/${this._db}/branches/${this.branch}/certificates`
     )
-    type CertData = { certificate: string; certificate_chain: string; ports: { proxy: number }; remote_addr: string }
-    const { response, body } = await postJSON<CertData>(fullURL, this._headers, { csr })
+
+    const displayName = `pscale-node-${nanoid()}`
+
+    type CertData = { certificate: string; database_branch: { access_host_url: string } }
+    const { response, body } = await postJSON<CertData>(fullURL, this._headers, {
+      csr: csr.toString(),
+      display_name: displayName
+    })
 
     const status = response.statusCode || 0
     if (status < 200 || status > 299) {
       throw new Error(`HTTP ${status}`)
     }
 
-    const addr = `${this.branch}.${this._db}.${this._org}.${body.remote_addr}`
+    const addr = body.database_branch.access_host_url
 
+    const exportPrivateKey = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+    const exportedAsString = String.fromCharCode.apply(null, Array.from(new Uint8Array(exportPrivateKey)))
+    const exportedAsBase64 = base64encode(exportedAsString)
+    const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`
     const sslOpts = {
       servername: addr,
       cert: body.certificate,
-      ca: body.certificate_chain,
-      key: forge.pki.privateKeyToPem(keys.privateKey),
-      rejectUnauthorized: false //todo(nickvanw) this should be replaced by a validation method
+      key: pemExported,
+      rejectUnauthorized: true
     }
 
     return mysql.createConnection({
       user: 'root',
       database: this._db,
-      stream: tls.connect(body.ports['proxy'], addr, sslOpts)
+      stream: tls.connect(3307, addr, sslOpts)
     })
-  }
-
-  private getCSR(keys: any): any {
-    const csr = forge.pki.createCertificationRequest()
-    csr.publicKey = keys.publicKey
-    csr.setSubject([
-      {
-        name: 'commonName',
-        value: `${this._org}/${this._db}/${this.branch}`
-      }
-    ])
-    csr.version = 1
-    csr.siginfo.algorithmOid = 'sha256'
-    csr.sign(keys.privateKey)
-    return forge.pki.certificationRequestToPem(csr)
   }
 }
 

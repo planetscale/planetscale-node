@@ -1,6 +1,6 @@
 {
   "name": "planetscale-node",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "PlanetScale Database Client",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -27,8 +27,10 @@
   },
   "homepage": "https://github.com/planetscale/planetscale-node#readme",
   "dependencies": {
+    "@peculiar/webcrypto": "^1.2.0",
+    "@peculiar/x509": "^1.5.2",
     "mysql2": "^2.2.5",
-    "node-forge": "^0.10.0"
+    "nanoid": "^3.1.30"
   },
   "devDependencies": {
     "@types/node": "^15.12.2",
