@@ -1,5 +1,4 @@
 import * as https from 'https'
-import * as tls from 'tls'
 import * as mysql from 'mysql2'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
@@ -72,7 +71,7 @@ export class PSDB {
 
     const displayName = `pscale-node-${nanoid()}`
 
-    type CertData = { certificate: string; database_branch: { access_host_url: string } }
+    type CertData = { id: string; certificate: string; database_branch: { access_host_url: string } }
     const { response, body } = await postJSON<CertData>(fullURL, this._headers, {
       csr: csr.toString(),
       display_name: displayName
@@ -89,17 +88,16 @@ export class PSDB {
     const exportedAsString = String.fromCharCode.apply(null, Array.from(new Uint8Array(exportPrivateKey)))
     const exportedAsBase64 = base64encode(exportedAsString)
     const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`
-    const sslOpts = {
-      servername: addr,
-      cert: body.certificate,
-      key: pemExported,
-      rejectUnauthorized: true
-    }
 
     return mysql.createConnection({
-      user: 'root',
+      user: body.id,
+      host: addr,
       database: this._db,
-      stream: tls.connect(3307, addr, sslOpts)
+      ssl: {
+        key: pemExported,
+        cert: body.certificate,
+        rejectUnauthorized: true
+      }
     })
   }
 }
