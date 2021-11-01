@@ -3,12 +3,33 @@ import * as mysql from 'mysql2'
 import type { Connection } from 'mysql2'
 import type { IncomingMessage } from 'http'
 import { customAlphabet } from 'nanoid'
-import { Crypto } from '@peculiar/webcrypto'
+import * as crypto from 'crypto'
+import { Crypto as webCryptoPolyfill } from '@peculiar/webcrypto'
 import * as x509 from '@peculiar/x509'
 
-const crypto = new Crypto()
-x509.cryptoProvider.set(crypto)
+// Define interface for webcrypto. This is not available (yet)
+// in TypeScript for the native webcrypto so we need this to
+// satisfy the rest of the type checks.
+//
+// This definition is the same as what @peculiar/webcrypto uses
+// which functions as a polyfill for Node versions earlier than Node 15
+// which don't provide webcrypto.
+interface WebCrypto {
+  readonly subtle: SubtleCrypto
+  getRandomValues<T extends ArrayBufferView | null>(array: T): T
+}
 
+let webcrypto = crypto.webcrypto as unknown as WebCrypto
+// Need to cast here first to unknown and then to WebCrypto since
+// TypeScript doesn't know about WebCrypto as a specific type.
+if (crypto.webcrypto == undefined) {
+  console.warn(
+    'No native webcrypto available, using @peculiar/webcrypto polyfill. Please upgrade to Node 15 or later to avoid this warning.'
+  )
+  webcrypto = new webCryptoPolyfill()
+}
+
+x509.cryptoProvider.set(webcrypto)
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
 const nodeBtoa = (str: string): string => Buffer.from(str, 'binary').toString('base64')
 const base64encode = typeof btoa !== 'undefined' ? btoa : nodeBtoa
@@ -54,10 +75,10 @@ export class PSDB {
       hash: 'SHA-256'
     }
 
-    const keyPair = await crypto.subtle.generateKey(alg, true, ['sign', 'verify'])
+    const keyPair = await webcrypto.subtle.generateKey(alg, true, ['sign', 'verify'])
 
     if (!keyPair.privateKey) {
-      throw new Error(`Failed to generate keypair`)
+      throw new Error('Failed to generate keypair')
     }
 
     const csr = await x509.Pkcs10CertificateRequestGenerator.create({
@@ -84,7 +105,7 @@ export class PSDB {
 
     const addr = body.database_branch.access_host_url
 
-    const exportPrivateKey = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+    const exportPrivateKey = await webcrypto.subtle.exportKey('pkcs8', keyPair.privateKey)
     const exportedAsString = String.fromCharCode.apply(null, Array.from(new Uint8Array(exportPrivateKey)))
     const exportedAsBase64 = base64encode(exportedAsString)
     const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`
