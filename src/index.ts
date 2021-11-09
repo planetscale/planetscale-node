@@ -141,6 +141,7 @@ function postJSON<T>(
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'Content-Length': json.length,
+      'User-Agent': 'planetscale-node/0.2.0',
       ...headers
     }
   }
