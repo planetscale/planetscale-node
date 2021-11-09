@@ -35,7 +35,7 @@ export class PSDB {
 
   async query(data: any, params: any): Promise<any> {
     if (!this._connection) {
-      this._connection = await this.createConnection()
+      this._connection = await this._createConnection()
     }
 
     return this._connection.promise().query(data, params)
