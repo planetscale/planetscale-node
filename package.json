@@ -9,10 +9,13 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "prebuild": "npm run clean && npm run lint",
     "build": "tsc",
+    "format": "prettier src/**",
+    "format:fix": "prettier src/** --write",
     "lint": "eslint src/**",
     "lint:fix": "npm run lint -- --fix",
+    "prebuild": "npm run clean && npm run lint",
+    "prepare": "husky install",
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -43,37 +46,9 @@
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "prettier": "^2.3.0",
+    "husky": "^7.0.0",
+    "prettier": "2.4.1",
     "ts-jest": "^27.0.7",
     "typescript": "^4.3.2"
-  },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2018
-    },
-    "env": {
-      "es6": true,
-      "node": true
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:prettier/recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {
-      "prefer-const": "error",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off"
-    }
-  },
-  "prettier": {
-    "semi": false,
-    "trailingComma": "none",
-    "singleQuote": true,
-    "printWidth": 120,
-    "tabWidth": 2,
-    "useTabs": false,
-    "bracketSpacing": true
   }
 }
