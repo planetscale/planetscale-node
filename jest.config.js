@@ -2,5 +2,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFiles: ['<rootDir>/__mocks__/@peculiar/x509.js', '<rootDir>/__mocks__/@peculiar/crypto.js']
+  setupFiles: ['<rootDir>/__mocks__/@peculiar/x509.js', '<rootDir>/__mocks__/@peculiar/crypto.js'],
+  modulePathIgnorePatterns: ['<rootDir>/dist/']
 }
