@@ -28,8 +28,8 @@ export class PSDB {
     this._org = process.env.PLANETSCALE_ORG
     this._db = process.env.PLANETSCALE_DB
     this._baseURL = 'https://api.planetscale.com'
-    this._headers = { Authorization: `${this._tokenname}:${this._token}` }
     this.connectionOptions = connectionOptions
+    this._headers = { Authorization: `${this._tokenname}:${this._token}` }
     this._httpClient = new HttpClient({ headers: this._headers })
   }
 
@@ -59,7 +59,7 @@ export class PSDB {
       display_name: displayName
     })
 
-    const status = response.status || 0
+    const status = response.statusCode || 0
     if (status < 200 || status > 299) {
       throw new Error(`HTTP ${status}`)
     }
