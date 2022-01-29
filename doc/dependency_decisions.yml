@@ -1,0 +1,44 @@
+---
+- - :permit
+  - bsd-2-clause
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:02.290815000 Z
+- - :permit
+  - bsd-3-clause
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:02.596741000 Z
+- - :permit
+  - apache-2.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:02.862553000 Z
+- - :permit
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:03.133057000 Z
+- - :permit
+  - ISC
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:03.397928000 Z
+- - :permit
+  - mpl-2.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:28:03.660641000 Z
+- - :license
+  - "@typescript-eslint/parser"
+  - bsd-2-clause
+  - :who:
+    :why:
+    :versions: []
+    :when: 2022-01-29 15:29:16.763844000 Z
