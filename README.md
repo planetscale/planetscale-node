@@ -1,6 +1,6 @@
 # planetscale-node
 
-⚠️ This package is not currently maintained, and will be phased out soon. If you're looking to connect to PlanetScale with a JavaScript application, follow our [Node.js guide](https://docs.planetscale.com/tutorials/connect-nodejs-app) which uses [Connection strings](https://docs.planetscale.com/concepts/connection-strings). ⚠️
+⚠️ This package is not currently maintained, and will be phased out soon. If you're looking to connect to PlanetScale with a JavaScript application, follow our [Node.js guide](https://planetscale.com/docs/tutorials/connect-nodejs-app) which uses [Connection strings](https://planetscale.com/docs/concepts/connection-strings). ⚠️
 
 This is the pre-release JavaScript client for connecting to PlanetScale.
 
