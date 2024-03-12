@@ -1,6 +1,12 @@
 # planetscale-node
 
-⚠️ Do not use this package. It is from PlanetScale's early beta and no longer necessary. To use PlanetScale with a Node.js application, follow our [Node.js guide](https://planetscale.com/docs/tutorials/connect-nodejs-app). PlanetScale is MySQL compatible and you can expect it to work with any MySQL node compatible library. For applications that require edge (http) connectivity, we recommend [database.js](https://github.com/planetscale/database-js) ⚠️
+⚠️ Do not use this package. It is from PlanetScale's early beta and no longer necessary. ⚠️
+
+- To use PlanetScale with a Node.js application, follow our [Node.js guide](https://planetscale.com/docs/tutorials/connect-nodejs-app). 
+- PlanetScale is MySQL compatible and you can expect it to work with any MySQL node compatible library.
+- For applications that require edge (http) connectivity, we recommend [database.js](https://github.com/planetscale/database-js)
+
+⚠️ The rest of the readme is for archival purposes only. ⚠️
 
 ## Installation
 
