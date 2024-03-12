@@ -150,7 +150,14 @@ function postJSON<T>(
     const req = https.request(options, (response) => {
       let body = ''
       response.on('data', (chunk) => (body += chunk))
-      response.on('end', () => resolve({ response, body: JSON.parse(body) }))
+      response.on('end', () => {
+        try {
+          const parsedBody = JSON.parse(body)
+          resolve({ response, body: parsedBody })
+        } catch (e) {
+          reject(e)
+        }
+      })
     })
 
     req.on('error', (e) => reject(e))
