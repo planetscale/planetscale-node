@@ -1,8 +1,6 @@
 # planetscale-node
 
-⚠️ This package is not currently maintained, and will be phased out soon. If you're looking to connect to PlanetScale with a JavaScript application, follow our [Node.js guide](https://planetscale.com/docs/tutorials/connect-nodejs-app) which uses [Connection strings](https://planetscale.com/docs/concepts/connection-strings). ⚠️
-
-This is the pre-release JavaScript client for connecting to PlanetScale.
+⚠️ Do not use this package. It is from PlanetScale's early beta and no longer necessary. To use PlanetScale with a Node.js application, follow our [Node.js guide](https://planetscale.com/docs/tutorials/connect-nodejs-app). PlanetScale is MySQL compatible and you can expect it to work with any MySQL node compatible library. For applications that require edge (http) connectivity, we recommend [database.js](https://github.com/planetscale/database-js) ⚠️
 
 ## Installation
 
